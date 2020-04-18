@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
 
     let port = 8998;
 
-    HttpServer::new( || {
+    HttpServer::new( move|| {
         App::new()
             .data(pool.clone())
             .wrap( middleware::Logger::default())
