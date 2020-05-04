@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed to create pool.");
 
     let port = 8998;
-
+    println!("starting http server at {:?}", port);
     HttpServer::new( move|| {
         App::new()
             .data(pool.clone())

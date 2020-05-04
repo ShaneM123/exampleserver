@@ -12,7 +12,7 @@ pub struct User {
     pub last_name: String,
     pub age: i32,
 }
-#[derive(Queryable, Identifiable, Debug, Deserialize, Serialize, AsChangeset, Insertable)]
+#[derive(Queryable, PartialEq, Identifiable, Debug, Deserialize, Serialize, AsChangeset, Insertable)]
 #[table_name = "users"]
 pub struct Users {
     pub id: i32,
@@ -38,16 +38,17 @@ impl Users {
         //The connection type supports a method transaction which takes a closure. The closure must return a Result.
         conn.transaction(|| {
             diesel::insert_into(users::table)
-                .values((users::username.eq(&user.username),))
-                // error Result with our AppError error type because of our From implementation in our errors module.
+                .values((
+                    users::username.eq(&user.username.to_string()),
+                    users::first_name.eq(&user.first_name.to_string()),
+                    users::last_name.eq(&user.last_name.to_string()),
+                    users::age.eq(&user.age),
+                ))
                 .execute(conn)?;
 
-            //Sqlite does not support getting the id of a just inserted row as part of the insert statement.
-            // to actually get the data back out to build a User struct we do another query.
-          let user =  users::table
-            .filter(users::username.eq(&user.username)).first(conn)?;
-            Ok(user)
-                //uses the function signature to determine what to transform the error into.
+         let user =  users::table
+                        .filter(users::username.eq(&user.username.to_string())).first(conn)?;
+                        Ok(user)
 
         })
     }
